@@ -171,18 +171,19 @@ if __name__ == "__main__":
     for repo in source.get_repos():
         if(inp.target_repo_name != "" and repo.name != inp.target_repo_name):
             continue
-
-        for i in range(len(inp.secret_names)):
-            if not inp.interactive or apply_action(repo.name):
-                try:
-                    if inp.action == createCommand:
-                        add_secret(inp.token, repo, inp.secret_names[i], inp.secret_values[i])
-                    if inp.action == updateCommand:
-                        c = repo.get_contributors()
-                        repo.create_secret(inp.secret_names[i], inp.secret_values[i])
-                        print(f"Secret \"{inp.secret_names[i]}\" updated for {repo.name}")
-                    if inp.action == deleteCommand:
-                        repo.delete_secret(inp.secret_names[i])
-                        print(f"Secret \"{inp.secret_names[i]}\" removed from {repo.name}")
-                except UnknownObjectException:
-                    print(f"The provided token does not have permission to manage {repo.name}, it is being skipped")
+        
+        if not inp.target_team_name or inp.target_team_name in repo.name:
+            for i in range(len(inp.secret_names)):
+                if not inp.interactive or apply_action(repo.name):
+                    try:
+                        if inp.action == createCommand:
+                            add_secret(inp.token, repo, inp.secret_names[i], inp.secret_values[i])
+                        if inp.action == updateCommand:
+                            c = repo.get_contributors()
+                            repo.create_secret(inp.secret_names[i], inp.secret_values[i])
+                            print(f"Secret \"{inp.secret_names[i]}\" updated for {repo.name}")
+                        if inp.action == deleteCommand:
+                            repo.delete_secret(inp.secret_names[i])
+                            print(f"Secret \"{inp.secret_names[i]}\" removed from {repo.name}")
+                    except UnknownObjectException:
+                        print(f"The provided token does not have permission to manage {repo.name}, it is being skipped")
