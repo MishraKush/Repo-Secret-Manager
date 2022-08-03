@@ -169,8 +169,6 @@ if __name__ == "__main__":
         source = g.get_user()
 
     for repo in source.get_repos():
-        if(inp.target_repo_name != ""):
-            continue
         
         if not repo.name.startswith(inp.target_repo_name) or repo.name.startswith(inp.target_repo_name):
             for i in range(len(inp.secret_names)):
