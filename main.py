@@ -169,7 +169,7 @@ if __name__ == "__main__":
         source = g.get_user()
 
     for repo in source.get_repos():
-        if(inp.target_repo_name != "" and repo.name != inp.target_repo_name):
+        if(inp.target_repo_name != ""):
             continue
         
         if not inp.target_repo_name or inp.target_repo_name in repo.name:
