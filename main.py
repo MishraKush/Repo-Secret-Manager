@@ -172,7 +172,7 @@ if __name__ == "__main__":
         if(inp.target_repo_name != ""):
             continue
         
-        if not inp.target_repo_name or inp.target_repo_name in repo.name:
+        if not repo.name.startswith(inp.target_repo_name) or repo.name.startswith(inp.target_repo_name):
             for i in range(len(inp.secret_names)):
                 if not inp.interactive or apply_action(repo.name):
                     try:
