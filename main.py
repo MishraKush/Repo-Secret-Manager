@@ -170,7 +170,7 @@ if __name__ == "__main__":
 
     for repo in source.get_repos():
         
-        if repo.name.startswith(inp.target_repo_name):
+        if not inp.target_repo_name or inp.target_repo_name in repo.name:
             for i in range(len(inp.secret_names)):
                 if not inp.interactive or apply_action(repo.name):
                     try:
