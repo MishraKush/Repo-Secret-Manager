@@ -15,6 +15,7 @@ namesCommand = "--names"
 valuesCommand = "--values"
 teamCommand = "--team"
 repoCommand = "--repo"
+templateCommand = "--templateRepo"
 interactiveCommand = "--interactive"
 
 noTokenMessage = "Please provide a valid GitHub PAT using --token <PAT>."
@@ -28,13 +29,14 @@ invalidNamesAndSecretsMessage = "Secret names and secret values lists are not th
 
 
 class UserInput:
-    def __init__(self, token, action, secret_names, secret_values, target_team_name, target_repo_name, interactive):
+    def __init__(self, token, action, secret_names, secret_values, target_team_name, target_repo_name, template_repo_name, interactive):
         self.token = token
         self.action = action
         self.secret_names = secret_names
         self.secret_values = secret_values
         self.target_team_name = target_team_name
         self.target_repo_name = target_repo_name
+        self.template_repo_name = template_repo_name
         self.interactive = interactive
 
 
@@ -121,9 +123,10 @@ def get_input_from_cli():
     secret_values = get_optional_value_from_input(args, valuesCommand).split(',')
     target_team_name = get_optional_value_from_input(args, teamCommand)
     target_repo_name = get_optional_value_from_input(args, repoCommand)
+    template_repo_name = get_optional_value_from_input(args, templateCommand)
     interactive = interactiveCommand in args
     action = validate_action(args[0], createCommand, updateCommand, deleteCommand, secret_names, secret_values)
-    return UserInput(token, action, secret_names, secret_values, target_team_name, target_repo_name, interactive)
+    return UserInput(token, action, secret_names, secret_values, target_team_name, target_repo_name, template_repo_name, interactive)
 
 
 def flatten_secrets_dict(dict_of_secrets):
