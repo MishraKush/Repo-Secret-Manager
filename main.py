@@ -158,7 +158,10 @@ if __name__ == "__main__":
         inp = get_input_from_cli()
 
     g = get_github_user(inp.token, invalidTokenMessage)
-
+    
+    secretToken = 'token ' + inp.token
+    header = {'Accept': 'application/vnd.github+json', 'Authorization': secretToken}
+    
     if inp.target_team_name != "":
         for team in g.get_user().get_teams():  # There is no method to get a team by name
             if team.name == inp.target_team_name:
@@ -170,18 +173,20 @@ if __name__ == "__main__":
 
     for repo in source.get_repos():
         
-        if not inp.target_repo_name or inp.target_repo_name in repo.name:
-            for i in range(len(inp.secret_names)):
-                if not inp.interactive or apply_action(repo.name):
-                    try:
-                        if inp.action == createCommand:
-                            add_secret(inp.token, repo, inp.secret_names[i], inp.secret_values[i])
-                        if inp.action == updateCommand:
-                            c = repo.get_contributors()
-                            repo.create_secret(inp.secret_names[i], inp.secret_values[i])
-                            print(f"Secret \"{inp.secret_names[i]}\" updated for {repo.name}")
-                        if inp.action == deleteCommand:
-                            repo.delete_secret(inp.secret_names[i])
-                            print(f"Secret \"{inp.secret_names[i]}\" removed from {repo.name}")
-                    except UnknownObjectException:
+        res = requests.get(repo.url, headers=header).json()
+        if "template_repository" in res:
+            if res['template_repository']['name'] == inp.template_repo_name:
+              for i in range(len(inp.secret_names)):
+                  if not inp.interactive or apply_action(repo.name):
+                      try:
+                          if inp.action == createCommand:
+                              add_secret(inp.token, repo, inp.secret_names[i], inp.secret_values[i])
+                          if inp.action == updateCommand:
+                              c = repo.get_contributors()
+                              repo.create_secret(inp.secret_names[i], inp.secret_values[i])
+                              print(f"Secret \"{inp.secret_names[i]}\" updated for {repo.name}")
+                          if inp.action == deleteCommand:
+                              repo.delete_secret(inp.secret_names[i])
+                              print(f"Secret \"{inp.secret_names[i]}\" removed from {repo.name}")
+                      except UnknownObjectException:
                         print(f"The provided token does not have permission to manage {repo.name}, it is being skipped")
