@@ -176,6 +176,9 @@ if __name__ == "__main__":
 
     for repo in source.get_repos():
         
+        if "template" in repo.name:
+          continue
+          
         res = requests.get(repo.url, headers=header).json()
         if "template_repository" in res:
             if res['template_repository']['name'] == inp.template_repo_name:
