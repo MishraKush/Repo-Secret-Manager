@@ -109,12 +109,16 @@ def get_input_from_user():
         target_team_name = input("Team name: ")
     else:
         target_team_name = ""
+    if "y" in input("Limit tool to a github template Repo? (y/n)").lower():
+        template_repo_name = input("Template Repo name: ")
+    else:
+        template_repo_name = ""
     if "y" in input("Limit tool to a specific repo? (y/n)").lower():
         target_repo_name = input("Repo name: ")
     else:
         target_repo_name = ""
     interactive = "y" in input("Prompt for approval before applying action to each repo? (y/n)").lower()
-    return UserInput(token, action, secret_names, secret_values, target_team_name, target_repo_name, interactive)
+    return UserInput(token, action, secret_names, secret_values, target_team_name, target_repo_name, template_repo_name, interactive)
 
 
 def get_input_from_cli():
