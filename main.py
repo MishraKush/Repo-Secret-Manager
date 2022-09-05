@@ -23,6 +23,7 @@ invalidTokenMessage = "The token you provided is invalid."
 noActionMessage = "You must specify an action, either create or delete."
 noNamesMessage = "You must specify the name(s) of the secrets to be modified."
 noTeamMessage = "Invalid team name provided."
+noTemplateMessage = "No Template Provided."
 invalidNamesAndSecretsMessage = "Secret names and secret values lists are not the same length. This may be due to an " \
                                 "invalid input or a secret that contains a comma. Secrets with comma(s) are currently" \
                                 " not supported."
@@ -127,7 +128,7 @@ def get_input_from_cli():
     secret_values = get_optional_value_from_input(args, valuesCommand).split(',')
     target_team_name = get_optional_value_from_input(args, teamCommand)
     target_repo_name = get_optional_value_from_input(args, repoCommand)
-    template_repo_name = get_optional_value_from_input(args, templateCommand)
+    template_repo_name = get_mandatory_value_from_input(args, templateCommand, noTemplateMessage)
     interactive = interactiveCommand in args
     action = validate_action(args[0], createCommand, updateCommand, deleteCommand, secret_names, secret_values)
     return UserInput(token, action, secret_names, secret_values, target_team_name, target_repo_name, template_repo_name, interactive)
