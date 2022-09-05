@@ -98,6 +98,25 @@ def validate_action(candidate_action, create_command, update_command, delete_com
     raise ValueError(f"{candidate_action} is not a valid action! Please enter \"{create_command}\",\"{update_command}\""
                      + f"\"or {delete_command}\" as the first argument")
 
+    
+def get_input_from_user():
+    token = input("Github PAT: ")
+    action = input("Desired action to be performed (create/delete): ")
+    secret_names = input("Comma separated list of secret names: ").split(',')
+    if action.lower() != deleteCommand:
+        secret_values = input("Comma separated list of secret values: ").split(',')
+        validate_action(action, createCommand, updateCommand, deleteCommand, secret_names, secret_values)
+    if "y" in input("Limit tool to a github team? (y/n)").lower():
+        target_team_name = input("Team name: ")
+    else:
+        target_team_name = ""
+    if "y" in input("Limit tool to a specific repo? (y/n)").lower():
+        target_repo_name = input("Repo name: ")
+    else:
+        target_repo_name = ""
+    interactive = "y" in input("Prompt for approval before applying action to each repo? (y/n)").lower()
+    return UserInput(token, action, secret_names, secret_values, target_team_name, target_repo_name, interactive)
+
 
 def get_input_from_cli():
     token = get_mandatory_value_from_input(args, tokenCommand, noTokenMessage)
@@ -137,7 +156,10 @@ def add_secret(token, target_repository, secret_name, secret_value):
 
 
 if __name__ == "__main__":
-    inp = get_input_from_cli()
+    if len(args) == 0:
+        inp = get_input_from_user()
+    else:
+        inp = get_input_from_cli()
 
     g = get_github_user(inp.token, invalidTokenMessage)
     
