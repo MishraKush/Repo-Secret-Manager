@@ -19,8 +19,8 @@ inputs:
     description: 'A comma-separated list of secret value(s). Only required if `create` or `update` is selected'
     mandatory: False
     default: ''
-  repo:
-    description: 'A specific repo to sync the secrets to'
+  templateRepo:
+    description: 'Template repo from which to sync the secrets'
     mandatory: True
 runs:
   using: 'docker'
@@ -31,7 +31,7 @@ runs:
     TOKEN: ${{ inputs.token }}
     NAMES: ${{ inputs.secret-names }}
     VALUES: ${{ inputs.secret-values }}
-    REPO: ${{ inputs.repo }}
+    TEMPLATE_REPO: ${{ inputs.templateRepo }}
 branding:
   icon: 'lock'  
   color: 'blue'

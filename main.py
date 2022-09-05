@@ -14,9 +14,7 @@ tokenCommand = "--token"
 namesCommand = "--names"
 valuesCommand = "--values"
 teamCommand = "--team"
-repoCommand = "--repo"
 templateCommand = "--templateRepo"
-interactiveCommand = "--interactive"
 
 noTokenMessage = "Please provide a valid GitHub PAT using --token <PAT>."
 invalidTokenMessage = "The token you provided is invalid."
@@ -30,15 +28,13 @@ invalidNamesAndSecretsMessage = "Secret names and secret values lists are not th
 
 
 class UserInput:
-    def __init__(self, token, action, secret_names, secret_values, target_team_name, target_repo_name, template_repo_name, interactive):
+    def __init__(self, token, action, secret_names, secret_values, target_team_name, template_repo_name):
         self.token = token
         self.action = action
         self.secret_names = secret_names
         self.secret_values = secret_values
         self.target_team_name = target_team_name
-        self.target_repo_name = target_repo_name
         self.template_repo_name = template_repo_name
-        self.interactive = interactive
 
 
 def get_mandatory_value_from_input(arg_list, label, error_message):
@@ -82,10 +78,6 @@ def get_github_user(token, message):
         raise ValueError(message)
 
 
-def apply_action(repo_name):
-    return "y" in input(f"Apply action to {repo_name}? (y/n) ").lower()
-
-
 def validate_action(candidate_action, create_command, update_command, delete_command, secret_names, secret_values):
     if delete_command.lower() in candidate_action.lower():
         return delete_command
@@ -98,36 +90,15 @@ def validate_action(candidate_action, create_command, update_command, delete_com
     raise ValueError(f"{candidate_action} is not a valid action! Please enter \"{create_command}\",\"{update_command}\""
                      + f"\"or {delete_command}\" as the first argument")
 
-    
-def get_input_from_user():
-    token = input("Github PAT: ")
-    action = input("Desired action to be performed (create/delete): ")
-    secret_names = input("Comma separated list of secret names: ").split(',')
-    if action.lower() != deleteCommand:
-        secret_values = input("Comma separated list of secret values: ").split(',')
-        validate_action(action, createCommand, updateCommand, deleteCommand, secret_names, secret_values)
-    if "y" in input("Limit tool to a github team? (y/n)").lower():
-        target_team_name = input("Team name: ")
-    else:
-        target_team_name = ""
-    if "y" in input("Limit tool to a specific repo? (y/n)").lower():
-        target_repo_name = input("Repo name: ")
-    else:
-        target_repo_name = ""
-    interactive = "y" in input("Prompt for approval before applying action to each repo? (y/n)").lower()
-    return UserInput(token, action, secret_names, secret_values, target_team_name, target_repo_name, interactive)
-
 
 def get_input_from_cli():
     token = get_mandatory_value_from_input(args, tokenCommand, noTokenMessage)
     secret_names = get_mandatory_value_from_input(args, namesCommand, noNamesMessage).split(',')
     secret_values = get_optional_value_from_input(args, valuesCommand).split(',')
     target_team_name = get_optional_value_from_input(args, teamCommand)
-    target_repo_name = get_optional_value_from_input(args, repoCommand)
     template_repo_name = get_mandatory_value_from_input(args, templateCommand, noTemplateMessage)
-    interactive = interactiveCommand in args
     action = validate_action(args[0], createCommand, updateCommand, deleteCommand, secret_names, secret_values)
-    return UserInput(token, action, secret_names, secret_values, target_team_name, target_repo_name, template_repo_name, interactive)
+    return UserInput(token, action, secret_names, secret_values, target_team_name, template_repo_name)
 
 
 def flatten_secrets_dict(dict_of_secrets):
@@ -156,10 +127,7 @@ def add_secret(token, target_repository, secret_name, secret_value):
 
 
 if __name__ == "__main__":
-    if len(args) == 0:
-        inp = get_input_from_user()
-    else:
-        inp = get_input_from_cli()
+    inp = get_input_from_cli()
 
     g = get_github_user(inp.token, invalidTokenMessage)
     
@@ -185,16 +153,15 @@ if __name__ == "__main__":
             if res['template_repository']['name'] == inp.template_repo_name:
               print(f"Working on Repo : {repo.name}")
               for i in range(len(inp.secret_names)):
-                  if not inp.interactive or apply_action(repo.name):
-                      try:
-                          if inp.action == createCommand:
-                              add_secret(inp.token, repo, inp.secret_names[i], inp.secret_values[i])
-                          if inp.action == updateCommand:
-                              c = repo.get_contributors()
-                              repo.create_secret(inp.secret_names[i], inp.secret_values[i])
-                              print(f"Secret \"{inp.secret_names[i]}\" updated for {repo.name}")
-                          if inp.action == deleteCommand:
-                              repo.delete_secret(inp.secret_names[i])
-                              print(f"Secret \"{inp.secret_names[i]}\" removed from {repo.name}")
-                      except UnknownObjectException:
+                    try:
+                        if inp.action == createCommand:
+                            add_secret(inp.token, repo, inp.secret_names[i], inp.secret_values[i])
+                        if inp.action == updateCommand:
+                            c = repo.get_contributors()
+                            repo.create_secret(inp.secret_names[i], inp.secret_values[i])
+                            print(f"Secret \"{inp.secret_names[i]}\" updated for {repo.name}")
+                        if inp.action == deleteCommand:
+                            repo.delete_secret(inp.secret_names[i])
+                            print(f"Secret \"{inp.secret_names[i]}\" removed from {repo.name}")
+                    except UnknownObjectException:
                         print(f"The provided token does not have permission to manage {repo.name}, it is being skipped")
