@@ -26,7 +26,6 @@ inputs:
   templateRepo:
     description: 'Template Repo to sync secrets from'
     mandatory: True
-    default: ''
 runs:
   using: 'docker'
   image: 'Dockerfile'
