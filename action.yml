@@ -21,10 +21,6 @@ inputs:
     default: ''
   repo:
     description: 'A specific repo to sync the secrets to'
-    mandatory: False
-    default: ''
-  templateRepo:
-    description: 'Template Repo to sync secrets from'
     mandatory: True
 runs:
   using: 'docker'
@@ -36,7 +32,6 @@ runs:
     NAMES: ${{ inputs.secret-names }}
     VALUES: ${{ inputs.secret-values }}
     REPO: ${{ inputs.repo }}
-    TEMPLATE: ${{ inputs.templateRepo }}
 branding:
   icon: 'lock'  
   color: 'blue'
