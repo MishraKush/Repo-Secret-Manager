@@ -124,7 +124,7 @@ def get_input_from_cli():
     secret_values = get_optional_value_from_input(args, valuesCommand).split(',')
     target_team_name = get_optional_value_from_input(args, teamCommand)
     target_repo_name = get_optional_value_from_input(args, repoCommand)
-    template_repo_name = get_optional_value_from_input(args, templateCommand)
+    template_repo_name = get_mandatory_value_from_input(args, templateCommand, noTemplateMessage)
     interactive = interactiveCommand in args
     action = validate_action(args[0], createCommand, updateCommand, deleteCommand, secret_names, secret_values)
     return UserInput(token, action, secret_names, secret_values, target_team_name, target_repo_name, template_repo_name, interactive)
@@ -183,6 +183,7 @@ if __name__ == "__main__":
         res = requests.get(repo.url, headers=header).json()
         if "template_repository" in res:
             if res['template_repository']['name'] == inp.template_repo_name:
+              print(f"Working on Repo : {repo.name}")
               for i in range(len(inp.secret_names)):
                   if not inp.interactive or apply_action(repo.name):
                       try:
